@@ -26,7 +26,7 @@
    python manage.py runserver
 
 ## Project Structure
-
+```
 cithai/
 ├── cithai/ # Django project settings
 ├── music/ # Domain app
@@ -35,7 +35,7 @@ cithai/
 │ └── migrations/ # Database migrations
 ├── manage.py
 └── requirements.txt
-
+```
 ## Domain Model
 
 ![Domain Model](domain_model.png)
