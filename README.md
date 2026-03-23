@@ -100,7 +100,7 @@ Models registered:
 
 ## Domain Model
 
-![Domain Model](domain_model.png)
+<img src="docs/domain_model.png" alt="Domain Model" width="700"/>
 
 Core business entities:
 
