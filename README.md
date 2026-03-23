@@ -46,7 +46,7 @@ CIThai/
 
 ## Setup
 
-```bash
+```
 # 1. Clone the repository
 git clone https://github.com/fcxbsyo/CIThai.git
 cd CIThai
