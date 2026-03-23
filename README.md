@@ -85,6 +85,12 @@ Browse the full API at: `http://127.0.0.1:8000/api/`
 
 ---
 
+## CRUD Demo Screenshots
+
+[View CRUD screenshots](CRUD)
+
+---
+
 ## Admin
 
 Manage all data at: `http://127.0.0.1:8000/admin/`
