@@ -69,6 +69,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cithai.wsgi.application'
 
+AUTH_USER_MODEL = 'music.User'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

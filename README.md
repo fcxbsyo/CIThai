@@ -36,6 +36,7 @@
    ```
 
 ## Project Structure
+
 ```
 cithai/
 ├── cithai/ # Django project settings
@@ -46,6 +47,7 @@ cithai/
 ├── manage.py
 └── requirements.txt
 ```
+
 ## Domain Model
 
 ![Domain Model](domain_model.png)
