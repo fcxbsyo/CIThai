@@ -85,6 +85,10 @@ python manage.py runserver
 | GET, PUT, PATCH, DELETE | `/api/generations/{id}/` | Retrieve / Update / Delete generation    |
 | GET, POST               | `/api/sharelinks/`       | List all share links / Create share link |
 | GET, PUT, PATCH, DELETE | `/api/sharelinks/{id}/`  | Retrieve / Update / Delete share link    |
+| GET, POST               | `/api/genres/`           | List all genres / Create genre           |
+| GET, PUT, PATCH, DELETE | `/api/genres/{id}/`      | Retrieve / Update / Delete genre         |
+| GET, POST               | `/api/occasions/`        | List all occasions / Create occasion     |
+| GET, PUT, PATCH, DELETE | `/api/occasions/{id}/`   | Retrieve / Update / Delete occasion      |
 
 Browse the full API at: `http://127.0.0.1:8000/api/`
 
