@@ -1,11 +1,23 @@
 from rest_framework import serializers
-from .models import User, Song, SongGeneration, ShareLink
+from .models import User, Genre, Occasion, Song, SongGeneration, ShareLink
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'google_id', 'display_name', 'created_at']
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['id', 'name']
+
+
+class OccasionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Occasion
+        fields = ['id', 'name']
 
 
 class SongSerializer(serializers.ModelSerializer):

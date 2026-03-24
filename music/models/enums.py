@@ -12,22 +12,6 @@ class Mood(models.TextChoices):
     ENERGETIC = 'ENERGETIC', 'Energetic'
     CALM = 'CALM', 'Calm'
 
-class Genre(models.TextChoices):
-    ROCK = 'ROCK', 'Rock'
-    JAZZ = 'JAZZ', 'Jazz'
-    RNB = 'RNB', 'R&B'
-    POP = 'POP', 'Pop'
-    CLASSICAL = 'CLASSICAL', 'Classical'
-    HIPHOP = 'HIPHOP', 'Hip Hop'
-
-class Occasion(models.TextChoices):
-    BIRTHDAY = 'BIRTHDAY', 'Birthday'
-    WEDDING = 'WEDDING', 'Wedding'
-    CHRISTMAS = 'CHRISTMAS', 'Christmas'
-    GRADUATION = 'GRADUATION', 'Graduation'
-    ANNIVERSARY = 'ANNIVERSARY', 'Anniversary'
-    OTHER = 'OTHER', 'Other'
-
 class VoiceType(models.TextChoices):
     MALE = 'MALE', 'Male'
     FEMALE = 'FEMALE', 'Female'

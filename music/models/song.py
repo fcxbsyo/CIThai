@@ -1,6 +1,8 @@
 from django.db import models
-from .enums import Mood, Genre, Occasion, VoiceType
+from .enums import Mood, VoiceType
 from .user import User
+from .genre import Genre
+from .occasion import Occasion
 
 class Song(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='songs')
@@ -11,8 +13,8 @@ class Song(models.Model):
         related_name='produced_song'
     )
     title = models.CharField(max_length=255)
-    occasion = models.CharField(max_length=50, choices=Occasion.choices)
-    genre = models.CharField(max_length=50, choices=Genre.choices)
+    occasion = models.ForeignKey(Occasion, on_delete=models.PROTECT, related_name='songs')
+    genre = models.ForeignKey(Genre, on_delete=models.PROTECT, related_name='songs')
     mood = models.CharField(max_length=50, choices=Mood.choices)
     voice_type = models.CharField(max_length=50, choices=VoiceType.choices, default=VoiceType.MALE)
     custom_lyrics = models.TextField(max_length=1500, null=True, blank=True)
