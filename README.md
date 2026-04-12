@@ -75,6 +75,56 @@ python manage.py runserver
 
 ---
 
+## Song Generation (Strategy Pattern)
+
+The system supports two interchangeable song generation strategies controlled by the `GENERATOR_STRATEGY` environment variable.
+
+### Mock Mode (default)
+
+Mock mode runs offline with no external API calls. It returns a fixed placeholder audio URL and is used for development and testing.
+
+Create a `.env` file in the project root:
+
+```
+GENERATOR_STRATEGY=mock
+```
+
+To verify mock generation works:
+
+```
+python3 manage.py demo_generation --strategy mock
+```
+
+Expected output: `final status : mock_complete`
+
+### Suno Mode (real AI generation)
+
+Suno mode calls the [SunoAPI.org](https://sunoapi.org) external service to generate real songs.
+
+Add the following to your `.env` file:
+
+```
+GENERATOR_STRATEGY=suno
+SUNO_API_KEY=your_api_key_here
+```
+
+To verify Suno generation works:
+
+```
+python3 manage.py demo_generation --strategy suno
+```
+
+Expected output: a real `task_id` returned from SunoAPI, followed by status polling until complete.
+
+### API Key Security
+
+- The Suno API key is read from the `SUNO_API_KEY` environment variable
+- **Never hardcode the key in source code or commit it to Git**
+- `.env` is already listed in `.gitignore` — keep it that way
+- Get your API key from [https://sunoapi.org](https://sunoapi.org)
+
+---
+
 ## API Endpoints
 
 | Method                  | Endpoint                 | Description                              |
