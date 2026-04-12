@@ -47,10 +47,10 @@ class MockSongGeneratorStrategy(SongGeneratorStrategy):
             logger.info('[MockStrategy] get_status() | task_id=%s | poll=%d → PENDING', task_id, count)
             return GenerationResult(task_id=task_id, status='PENDING')
         
-        logger.info('[MockStrategy] get_status() | task_id=%s | poll=%d → SUCCESS', task_id, count)
+        logger.info('[MockStrategy] get_status() | task_id=%s | poll=%d → mock_complete', task_id, count)
         return GenerationResult(
             task_id=task_id,
-            status='SUCCESS',
+            status='mock_complete',
             audio_url=MOCK_AUDIO_URL,
             duration=MOCK_DURATION_SECS,
         )

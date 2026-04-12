@@ -73,16 +73,17 @@ class SongCreationService:
 
         # persist Song
         song = Song.objects.create(
-            owner = generation.user,
-            generation = generation,
-            title = params['title'],
-            occasion = params['occasion'],
-            genre = params['genre'],
-            mood = params['mood'],
-            voice_type = params.get('voice_type', VoiceType.MALE),
-            custom_lyrics = params.get('custom_lyrics', '') or '',
-            audio_file_reference = result.audio_url,
-        )
+        owner = generation.user,
+        generation = generation,
+        title = params['title'],
+        occasion = params['occasion'],
+        genre = params['genre'],
+        mood = params['mood'],
+        voice_type = params.get('voice_type', VoiceType.MALE),
+        custom_lyrics = params.get('custom_lyrics', '') or '',
+        audio_file_reference = result.audio_url,
+        duration_seconds = result.duration,
+    )
         
         generation.status = GenerationStatus.READY
         generation.completed_at = timezone.now()
