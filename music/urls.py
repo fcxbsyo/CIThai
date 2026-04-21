@@ -1,15 +1,24 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import SongViewSet, SongGenerationViewSet, ShareLinkViewSet, GenreViewSet, OccasionViewSet, PublicShareView
+from rest_framework_simplejwt.views import TokenRefreshView
+
+from .views import (
+    SongViewSet, SongGenerationViewSet, 
+    ShareLinkViewSet, GenreViewSet, 
+    OccasionViewSet, PublicShareView,
+    RegisterView, LoginView)
 
 router = DefaultRouter()
-router.register(r'songs', SongViewSet)
-router.register(r'generations', SongGenerationViewSet)
-router.register(r'sharelinks', ShareLinkViewSet)
+router.register(r'songs', SongViewSet, basename='song')
+router.register(r'generations', SongGenerationViewSet, basename='songgeneration')
+router.register(r'sharelinks', ShareLinkViewSet, basename='sharelink')
 router.register(r'genres', GenreViewSet)
 router.register(r'occasions', OccasionViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
     path('share/<str:token>', PublicShareView.as_view(), name='public-share'),
+    path('auth/register/', RegisterView.as_view(), name='auth-register'),
+    path('auth/login/', LoginView.as_view(), name='auth-login'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh')
 ]
