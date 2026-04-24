@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     SongViewSet, SongGenerationViewSet, 
     ShareLinkViewSet, GenreViewSet, 
-    OccasionViewSet, PublicShareView,
+    OccasionViewSet, PublicShareView, SharedWithMeView,
     RegisterView, LoginView)
 
 router = DefaultRouter()
@@ -16,6 +16,7 @@ router.register(r'genres', GenreViewSet)
 router.register(r'occasions', OccasionViewSet)
 
 urlpatterns = [
+    path('songs/shared-with-me/', SharedWithMeView.as_view(), name='shared-with-me'),
     path('', include(router.urls)),
     path('share/<str:token>', PublicShareView.as_view(), name='public-share'),
     path('auth/register/', RegisterView.as_view(), name='auth-register'),

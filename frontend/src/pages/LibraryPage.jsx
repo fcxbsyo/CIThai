@@ -17,15 +17,47 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+function SongRow({ song, onClick }) {
+  const s = STATUS[song.status] || STATUS.GENERATING
+  return (
+    <div onClick={onClick}
+      style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 80px 90px', gap: 16, padding: '14px 16px', borderRadius: 'var(--radius)', cursor: 'pointer', alignItems: 'center', transition: 'background 0.15s' }}
+      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg2)'}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 8, background: `hsl(${(song.id * 47) % 360}, 40%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>♪</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.title}</div>
+          <div style={{ color: 'var(--text3)', fontSize: 12 }}>{formatDate(song.generated_at)}</div>
+        </div>
+      </div>
+      <div style={{ color: 'var(--text2)', fontSize: 13 }}>{song.genre_name || '—'}</div>
+      <div style={{ color: 'var(--text2)', fontSize: 13 }}>{song.occasion_name || '—'}</div>
+      <div style={{ color: 'var(--text2)', fontSize: 13 }}>{formatDuration(song.duration_seconds)}</div>
+      <div style={{ display: 'inline-flex', padding: '3px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: s.bg, color: s.color }}>{s.label}</div>
+    </div>
+  )
+}
+
+function SectionHeader({ title }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 80px 90px', gap: 16, padding: '8px 16px', color: 'var(--text3)', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+      <span>{title}</span><span>Genre</span><span>Occasion</span><span>Duration</span><span>Status</span>
+    </div>
+  )
+}
+
 export default function LibraryPage() {
   const [songs, setSongs] = useState([])
+  const [sharedSongs, setSharedSongs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
-    api.getSongs()
-      .then(setSongs)
+    Promise.all([api.getSongs(), api.getSharedWithMe()])
+      .then(([mine, shared]) => { setSongs(mine); setSharedSongs(shared) })
       .catch(() => setError('Failed to load songs'))
       .finally(() => setLoading(false))
   }, [])
@@ -42,54 +74,42 @@ export default function LibraryPage() {
         </button>
       </div>
 
-      {loading && (
-        <div style={{ color: 'var(--text3)' }}>Loading…</div>
-      )}
+      {loading && <div style={{ color: 'var(--text3)' }}>Loading…</div>}
+      {error && <div style={{ color: 'var(--danger)', padding: 16, background: 'rgba(255,77,109,0.1)', borderRadius: 'var(--radius)' }}>{error}</div>}
 
-      {error && (
-        <div style={{ color: 'var(--danger)', padding: 16, background: 'rgba(255,77,109,0.1)', borderRadius: 'var(--radius)' }}>{error}</div>
-      )}
-
-      {!loading && !error && songs.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--text3)' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>♪</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--text2)', marginBottom: 8 }}>No songs yet</div>
-          <div style={{ marginBottom: 24 }}>Generate your first AI song to get started</div>
-          <button onClick={() => navigate('/create')} style={{ background: 'var(--accent)', color: '#000', fontFamily: 'var(--font-display)', fontWeight: 700, padding: '10px 24px', borderRadius: 'var(--radius-sm)' }}>
-            Create Song
-          </button>
-        </div>
-      )}
-
-      {!loading && songs.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 80px 90px', gap: 16, padding: '8px 16px', color: 'var(--text3)', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            <span>Title</span><span>Genre</span><span>Occasion</span><span>Duration</span><span>Status</span>
+      {!loading && !error && (
+        <>
+          {/* My Songs */}
+          <div style={{ marginBottom: 48 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text2)' }}>My Songs</div>
+            {songs.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text3)' }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>♪</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--text2)', marginBottom: 8 }}>No songs yet</div>
+                <div style={{ marginBottom: 20 }}>Generate your first AI song to get started</div>
+                <button onClick={() => navigate('/create')} style={{ background: 'var(--accent)', color: '#000', fontFamily: 'var(--font-display)', fontWeight: 700, padding: '10px 24px', borderRadius: 'var(--radius-sm)' }}>Create Song</button>
+              </div>
+            ) : (
+              <>
+                <SectionHeader title="Title" />
+                {songs.map(song => <SongRow key={song.id} song={song} onClick={() => navigate(`/songs/${song.id}`)} />)}
+              </>
+            )}
           </div>
 
-          {songs.map(song => {
-            const s = STATUS[song.status] || STATUS.GENERATING
-            return (
-              <div key={song.id} onClick={() => navigate(`/songs/${song.id}`)}
-                style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 80px 90px', gap: 16, padding: '14px 16px', borderRadius: 'var(--radius)', cursor: 'pointer', alignItems: 'center', transition: 'background 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg2)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 8, background: `hsl(${(song.id * 47) % 360}, 40%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>♪</div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.title}</div>
-                    <div style={{ color: 'var(--text3)', fontSize: 12 }}>{formatDate(song.generated_at)}</div>
-                  </div>
-                </div>
-                <div style={{ color: 'var(--text2)', fontSize: 13 }}>{song.genre_name || '—'}</div>
-                <div style={{ color: 'var(--text2)', fontSize: 13 }}>{song.occasion_name || '—'}</div>
-                <div style={{ color: 'var(--text2)', fontSize: 13 }}>{formatDuration(song.duration_seconds)}</div>
-                <div style={{ display: 'inline-flex', padding: '3px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: s.bg, color: s.color }}>{s.label}</div>
-              </div>
-            )
-          })}
-        </div>
+          {/* Shared with Me */}
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text2)' }}>Shared with Me</div>
+            {sharedSongs.length === 0 ? (
+              <div style={{ padding: '32px 16px', color: 'var(--text3)', fontSize: 13 }}>No songs have been shared with you yet.</div>
+            ) : (
+              <>
+                <SectionHeader title="Title" />
+                {sharedSongs.map(song => <SongRow key={song.id} song={song} onClick={() => navigate(`/songs/${song.id}`)} />)}
+              </>
+            )}
+          </div>
+        </>
       )}
     </div>
   )

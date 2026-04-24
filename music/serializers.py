@@ -43,14 +43,21 @@ class OccasionSerializer(serializers.ModelSerializer):
 
 
 class SongSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
+
+    def get_status(self, obj):
+        if obj.generation:
+            return obj.generation.status
+        return 'READY'  # if no generation record, assume it's ready
+
     class Meta:
         model = Song
         fields = ['id', 'owner', 'generation', 'title', 'occasion', 'genre',
                   'mood', 'voice_type', 'custom_lyrics', 'duration_seconds',
-                  'audio_file_reference', 'generated_at', 'updated_at']
-        read_only_fields = ['owner', 'generated_at', 'updated_at']
+                  'audio_file_reference', 'generated_at', 'updated_at', 'status']
+        read_only_fields = ['owner', 'generated_at', 'updated_at', 'status']
         extra_kwargs = {
-            'audio_file_reference': {'required': False, 'allow_blank': True},
+            'audio_file_reference': {'required': False, 'allow_blank': True, 'default': ''},
             'duration_seconds': {'required': False, 'default': 0},
         }
         

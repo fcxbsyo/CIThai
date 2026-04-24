@@ -32,4 +32,5 @@ export const api = {
   getOccasions: () => request('GET', '/occasions/'),
   getGenerations: () => request('GET', '/generations/'),
   getSharedSong: (token) => request('GET', `/share/${token}/`, null, false),
+  getSharedWithMe: () => request('GET', '/songs/shared-with-me/'),
 }
