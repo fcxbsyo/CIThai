@@ -12,8 +12,8 @@ export default function Layout() {
 
   function handleLogout() {
     logout()
-    navigate('/login')
-  }
+    window.location.href = '/login'
+    }
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
@@ -59,10 +59,12 @@ export default function Layout() {
           <div style={{ color: 'var(--text3)', fontSize: 13, marginBottom: 14 }}>{user?.email}</div>
           <button
             onClick={handleLogout}
-            style={{ color: 'var(--text3)', fontSize: 14 }}
-            onMouseEnter={e => e.target.style.color = 'var(--danger)'}
-            onMouseLeave={e => e.target.style.color = 'var(--text3)'}
-          >Sign out</button>
+            style={{ color: 'var(--text3)', fontSize: 14, cursor: 'pointer' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--danger)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text3)'}
+        >
+            Sign out
+        </button>
         </div>
       </aside>
 

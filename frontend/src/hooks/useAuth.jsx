@@ -16,11 +16,11 @@ export function AuthProvider({ children }) {
     }
 
     function logout() {
-        localStorage.removeItem('acess_token')
-        localStrorage.removeItem('refrsh_token')
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
         localStorage.removeItem('user')
         setUser(null)
-    }
+     }
 
     return (
         <AuthContext.Provider value={{ user, login, logout }}>
