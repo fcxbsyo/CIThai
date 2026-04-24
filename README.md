@@ -240,6 +240,10 @@ python3 manage.py demo_generation --strategy mock
 
 Expected output: `final status : SUCCESS`
 
+**Demo output:**
+
+![Mock generation demo](docs/mock_generation.png)
+
 ### Suno Mode (real AI generation)
 
 ```
@@ -257,6 +261,10 @@ python3 manage.py demo_generation --strategy suno --max-polls 30 --poll-interval
 ```
 
 Expected output: a real `task_id` followed by status polling until `SUCCESS` with an `audio_url`.
+
+**Demo output:**
+
+![Suno generation demo](docs/suno_generation.png)
 
 ### API Key Security
 
@@ -299,13 +307,13 @@ Models registered: User, Song, SongGeneration, ShareLink, Genre, Occasion
 
 ## CRUD Demo Screenshots
 
-[View CRUD screenshots](CRUD)
+[View CRUD screenshots](docs/CRUD)
 
 ---
 
 ## Domain Model
 
-<img src="domain_model.png" alt="Domain Model" width="700"/>
+<img src="docs/domain_model.png" alt="Domain Model" width="700"/>
 
 Core business entities:
 
