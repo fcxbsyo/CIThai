@@ -7,6 +7,7 @@ import LibraryPage from './pages/LibraryPage.jsx'
 import CreateSongPage from './pages/CreateSongPage.jsx'
 import SongDetailPage from './pages/SongDetailPage.jsx'
 import SharedSongPage from './pages/SharedSongPage.jsx'
+import OAuthCallbackPage from './pages/OAuthCallbackPage.jsx'
 
 function PrivateRoute({ children }) {
   const { user } = useAuth()
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/share/:token" element={<SharedSongPage />} />
+          <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
           <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
             <Route index element={<Navigate to="/library" replace />} />
             <Route path="library" element={<LibraryPage />} />

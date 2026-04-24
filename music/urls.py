@@ -6,7 +6,8 @@ from .views import (
     SongViewSet, SongGenerationViewSet, GenerateSongView,
     ShareLinkViewSet, GenreViewSet,
     OccasionViewSet, PublicShareView, SharedWithMeView,
-    RecordShareAccessView, RegisterView, LoginView)
+    RecordShareAccessView, RegisterView, LoginView,
+    MeView, GoogleOAuthCallbackView)
 
 router = DefaultRouter()
 router.register(r'songs', SongViewSet, basename='song')
@@ -23,5 +24,7 @@ urlpatterns = [
     path('auth/register/', RegisterView.as_view(), name='auth-register'),
     path('auth/login/', LoginView.as_view(), name='auth-login'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('auth/me/', MeView.as_view(), name='me'),
+    path('auth/google/callback/', GoogleOAuthCallbackView.as_view(), name='google-jwt-callback'),
     path('', include(router.urls)),
 ]
