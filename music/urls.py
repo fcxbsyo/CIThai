@@ -19,7 +19,7 @@ urlpatterns = [
     path('songs/shared-with-me/', SharedWithMeView.as_view(), name='shared-with-me'),
     path('generate/', GenerateSongView.as_view(), name='generate-song'),
     path('', include(router.urls)),
-    path('share/<str:token>', PublicShareView.as_view(), name='public-share'),
+    path('share/<str:token>/', PublicShareView.as_view(), name='public-share'),
     path('auth/register/', RegisterView.as_view(), name='auth-register'),
     path('auth/login/', LoginView.as_view(), name='auth-login'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh')

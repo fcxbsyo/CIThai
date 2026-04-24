@@ -51,6 +51,32 @@ export default function SongDetailPage() {
     setProgress(e.target.value)
   }
 
+  function handleSkipBack() {
+    const audio = audioRef.current
+    if (!audio) return
+    audio.currentTime = 0
+    setProgress(0)
+  }
+
+  function handleSkipForward() {
+    const audio = audioRef.current
+    if (!audio) return
+    audio.currentTime = audio.duration
+    setProgress(100)
+  }
+
+  async function handleDownload() {
+    try {
+      const token = localStorage.getItem('access_token')
+      const res = await fetch(`/api/songs/${id}/download/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      window.open(res.url, '_blank')
+    } catch {
+      setToast({ message: 'Failed to download song', type: 'error' })
+    }
+  }
+
   async function handleShare() {
     try {
       const data = await api.shareSong(id)
@@ -79,12 +105,10 @@ export default function SongDetailPage() {
 
   return (
     <div style={{ padding: '40px 48px' }}>
-      {/* Back */}
       <button onClick={() => navigate('/library')} style={{ color: 'var(--text3)', fontSize: 15, marginBottom: 32, display: 'flex', alignItems: 'center', gap: 6 }}>
         ← Back to Library
       </button>
 
-      {/* Song header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginBottom: 40 }}>
         <div style={{ width: 88, height: 88, borderRadius: 16, background: `hsl(${(song.id * 47) % 360}, 40%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, flexShrink: 0 }}>♪</div>
         <div>
@@ -102,15 +126,11 @@ export default function SongDetailPage() {
             style={{ width: '100%', marginBottom: 24, accentColor: 'var(--accent)', cursor: 'pointer' }} />
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
-            <button onClick={togglePlay} style={{
-                width: 56, height: 56, borderRadius: '50%',
-                background: 'var(--accent)', color: '#000',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 22,
-                paddingLeft: playing ? 0 : 4,
-             }}>
-                {playing ? '⏸' : '▶'}
+            <button onClick={handleSkipBack} style={{ color: 'var(--text3)', fontSize: 22, padding: 8 }}>⏮</button>
+            <button onClick={togglePlay} style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--accent)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, paddingLeft: playing ? 0 : 6 }}>
+              {playing ? '⏸' : '▶'}
             </button>
+            <button onClick={handleSkipForward} style={{ color: 'var(--text3)', fontSize: 22, padding: 8 }}>⏭</button>
           </div>
         </div>
       )}
@@ -119,12 +139,7 @@ export default function SongDetailPage() {
       <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 32, marginBottom: 32 }}>
         <div style={{ color: 'var(--text3)', fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 24 }}>Details</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
-          {[
-            ['Mood', song.mood],
-            ['Voice Type', song.voice_type],
-            ['Duration', formatDuration(song.duration_seconds)],
-            ['Created', formatDate(song.generated_at)],
-          ].map(([k, v]) => (
+          {[['Mood', song.mood], ['Voice Type', song.voice_type], ['Duration', formatDuration(song.duration_seconds)], ['Created', formatDate(song.generated_at)]].map(([k, v]) => (
             <div key={k}>
               <div style={{ color: 'var(--text3)', fontSize: 13, marginBottom: 6 }}>{k}</div>
               <div style={{ color: 'var(--text)', fontWeight: 500, fontSize: 16 }}>{v || '—'}</div>
@@ -143,6 +158,9 @@ export default function SongDetailPage() {
       <div style={{ display: 'flex', gap: 12 }}>
         <button onClick={handleShare} style={{ background: 'var(--bg3)', color: 'var(--text)', border: '1px solid var(--border)', padding: '12px 24px', borderRadius: 'var(--radius-sm)', fontWeight: 500, fontSize: 15 }}>
           Share
+        </button>
+        <button onClick={handleDownload} style={{ background: 'var(--bg3)', color: 'var(--text)', border: '1px solid var(--border)', padding: '12px 24px', borderRadius: 'var(--radius-sm)', fontWeight: 500, fontSize: 15 }}>
+          Download
         </button>
         <button onClick={handleDelete} style={{ background: 'rgba(255,77,109,0.1)', color: 'var(--danger)', border: '1px solid rgba(255,77,109,0.3)', padding: '12px 24px', borderRadius: 'var(--radius-sm)', fontWeight: 500, fontSize: 15 }}>
           Delete

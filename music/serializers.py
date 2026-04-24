@@ -82,8 +82,10 @@ class ShareLinkSerializer(serializers.ModelSerializer):
 
 class ShareLinkPublicSerializer(serializers.ModelSerializer):
     owner_display_name = serializers.CharField(source='owner.display_name', read_only=True)
+    genre_name = serializers.CharField(source='genre.name', read_only=True)
+    occasion_name = serializers.CharField(source='occasion.name', read_only=True)
 
     class Meta:
         model = Song
         fields = ['id', 'title', 'owner_display_name', 'occasion', 'genre',
-                  'mood', 'duration_seconds', 'generated_at']
+                  'mood', 'duration_seconds', 'generated_at', 'genre_name', 'occasion_name']
