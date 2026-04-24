@@ -193,13 +193,27 @@ Google OAuth allows users to sign in with their Google account. Follow these ste
 2. Click **+ Create Credentials** → **OAuth 2.0 Client ID**
 3. Application type: **Web application**
 4. Name: `CIThai Web`
-5. Under **Authorized redirect URIs** add both:
+5. Under **Authorized JavaScript origins** add:
+   ```
+   http://127.0.0.1:8000
+   http://localhost:8000
+   http://localhost:5173
+   ```
+   > ℹ️ `http://localhost:5173` is the default Vite frontend port. If your frontend runs on a different port (e.g. `5174`), add that instead. You can check your port in the terminal where `npm run dev` is running.
+6. Under **Authorized redirect URIs** add both:
    ```
    http://127.0.0.1:8000/accounts/google/login/callback/
    http://localhost:8000/accounts/google/login/callback/
    ```
-6. Click **Create**
-7. Copy the **Client ID** and **Client Secret**
+   > ℹ️ To verify the exact redirect URI your app is sending, run:
+   >
+   > ```bash
+   > curl -v "http://127.0.0.1:8000/accounts/google/login/?process=login" 2>&1 | grep "redirect_uri"
+   > ```
+   >
+   > The value after `redirect_uri=` (URL-decoded) must exactly match one of the URIs above.
+7. Click **Create**
+8. Copy the **Client ID** and **Client Secret**
 
 ### Step 4 — Add to `.env`
 
