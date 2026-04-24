@@ -195,8 +195,8 @@ Google OAuth allows users to sign in with their Google account. Follow these ste
 4. Name: `CIThai Web`
 5. Under **Authorized redirect URIs** add both:
    ```
-   http://127.0.0.1:8000/accounts/google/callback/
-   http://localhost:8000/accounts/google/callback/
+   http://127.0.0.1:8000/accounts/google/login/callback/
+   http://localhost:8000/accounts/google/login/callback/
    ```
 6. Click **Create**
 7. Copy the **Client ID** and **Client Secret**
