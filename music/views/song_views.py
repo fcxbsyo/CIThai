@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
 
 from ..models import Song, SongGeneration, ShareLink
 from ..serializers import SongSerializer, SongGenerationSerializer
@@ -41,6 +40,14 @@ class SongViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='share')
     def share(self, request, pk=None):
         song = self.get_object()
+
+        # C-3: only allow share for READY songs
+        if song.generation and song.generation.status != 'READY':
+            return Response(
+                {'detail': 'Share link can only be generated for ready songs.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         share_link, created = ShareLink.objects.get_or_create(
             song=song,
             defaults={'token': uuid.uuid4().hex}
@@ -73,11 +80,22 @@ class GenerateSongView(APIView):
         from ..services.song_creation_service import SongCreationService
         from ..models import Genre, Occasion
 
-        # C2: 20 song limit
+        # C-2: 20 song limit
         song_count = Song.objects.filter(owner=request.user).count()
         if song_count >= 20:
             return Response(
                 {'detail': 'You have reached the 20 song limit. Please delete some songs before creating new ones.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # NFR-P4: max 3 concurrent background generations
+        active_generations = SongGeneration.objects.filter(
+            user=request.user,
+            status='GENERATING'
+        ).count()
+        if active_generations >= 3:
+            return Response(
+                {'detail': 'You have 3 songs currently generating. Please wait for them to complete before starting a new one.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 

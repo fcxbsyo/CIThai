@@ -156,8 +156,21 @@ export default function SongDetailPage() {
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={handleShare} style={{ background: 'var(--bg3)', color: 'var(--text)', border: '1px solid var(--border)', padding: '12px 24px', borderRadius: 'var(--radius-sm)', fontWeight: 500, fontSize: 15 }}>
-          Share
+        <button
+            onClick={handleShare}
+            disabled={song.status !== 'READY'}
+            style={{
+                background: song.status !== 'READY' ? 'var(--bg4)' : 'var(--bg3)',
+                color: song.status !== 'READY' ? 'var(--text3)' : 'var(--text)',
+                border: '1px solid var(--border)',
+                padding: '12px 24px',
+                borderRadius: 'var(--radius-sm)',
+                fontWeight: 500,
+                fontSize: 15,
+                cursor: song.status !== 'READY' ? 'not-allowed' : 'pointer',
+            }}
+        >
+            {song.status !== 'READY' ? 'Share (unavailable)' : 'Share'}
         </button>
         <button onClick={handleDownload} style={{ background: 'var(--bg3)', color: 'var(--text)', border: '1px solid var(--border)', padding: '12px 24px', borderRadius: 'var(--radius-sm)', fontWeight: 500, fontSize: 15 }}>
           Download

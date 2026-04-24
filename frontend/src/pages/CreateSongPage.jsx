@@ -27,22 +27,22 @@ export default function CreateSongPage() {
     if (!form.genre) { setError('Please select a genre'); return }
     setSubmitting(true)
     try {
-      await api.generateSong({
+        await api.generateSong({
         title: form.title,
         occasion: form.occasion,
         genre: form.genre,
         mood: form.mood,
         voice_type: form.voice_type,
         custom_lyrics: form.custom_lyrics || '',
-      })
-      setToast({ message: `"${form.title}" is being generated!`, type: 'success' })
-      setTimeout(() => navigate('/library'), 2000)
+        })
+        setToast({ message: `"${form.title}" is generating in the background. Check your library for updates.`, type: 'success' })
+        setTimeout(() => navigate('/library'), 2000)
     } catch (err) {
-      setToast({ message: err.detail || 'Failed to start generation', type: 'error' })
+        setToast({ message: err.detail || 'Failed to start generation', type: 'error' })
     } finally {
-      setSubmitting(false)
+        setSubmitting(false)
     }
-  }
+}
 
   return (
     <div style={{ padding: '40px 48px' }}>
