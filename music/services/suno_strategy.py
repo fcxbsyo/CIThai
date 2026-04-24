@@ -111,19 +111,21 @@ class SunoSongGeneratorStrategy(SongGeneratorStrategy):
         except requests.RequestException as exc:
             raise SunoStrategyError(f'SunoAPI status poll failed: {exc}') from exc
 
-        data  = response.json()
+        data = response.json()
         inner = data.get('data') or {}
         task_id = inner.get('taskId') or inner.get('task_id') or ''
+        status = inner.get('status', 'PENDING')
 
-        status    = inner.get('status', 'PENDING')
-        clips     = inner.get('clips') or inner.get('data', [])
+        # correct path: data.response.sunoData
         audio_url = ''
-        duration  = 0
+        duration = 0
 
-        if status == 'SUCCESS' and clips:
-            first_clip = clips[0] if isinstance(clips, list) else clips
-            audio_url  = first_clip.get('audio_url', '')
-            duration   = int(first_clip.get('duration', 0))
+        if status == 'SUCCESS':
+            suno_data = inner.get('response', {}).get('sunoData', [])
+            if suno_data:
+                first_clip = suno_data[0]
+                audio_url = first_clip.get('audioUrl', '')
+                duration = int(first_clip.get('duration', 0) or 0)
 
         logger.info(
             '[SunoStrategy] Poll result | task_id=%s | status=%s | audio_url=%s',

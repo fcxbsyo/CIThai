@@ -28,33 +28,38 @@ export default function Layout() {
         flexShrink: 0,
       }}>
         <div style={{ padding: '0 24px 32px' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, color: 'var(--accent)' }}>CIThai</div>
-          <div style={{ color: 'var(--text3)', fontSize: 11, marginTop: 2 }}>AI Music Generation</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, color: 'var(--accent)' }}>CIThai</div>
+          <div style={{ color: 'var(--text3)', fontSize: 13, marginTop: 4 }}>AI Music Generation</div>
         </div>
 
         <nav style={{ flex: 1, padding: '0 12px' }}>
-          <div style={{ color: 'var(--text3)', fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 12px 8px' }}>Menu</div>
+          <div style={{ color: 'var(--text3)', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 12px 10px' }}>Menu</div>
           {NAV.map(({ to, label, icon }) => (
             <NavLink key={to} to={to} style={({ isActive }) => ({
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '10px 12px', borderRadius: 'var(--radius-sm)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '12px 12px',
+              borderRadius: 'var(--radius-sm)',
               color: isActive ? 'var(--accent)' : 'var(--text2)',
               background: isActive ? 'rgba(0,230,118,0.08)' : 'transparent',
-              fontWeight: isActive ? 500 : 400, marginBottom: 2,
+              fontWeight: isActive ? 600 : 400,
+              fontSize: 15,
+              marginBottom: 4,
               transition: 'all 0.15s',
             })}>
-              <span style={{ fontSize: 16, width: 20, textAlign: 'center' }}>{icon}</span>
+              <span style={{ fontSize: 18, width: 22, textAlign: 'center' }}>{icon}</span>
               {label}
             </NavLink>
           ))}
         </nav>
 
         <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ color: 'var(--text)', fontWeight: 500, fontSize: 13, marginBottom: 2 }}>{user?.display_name}</div>
-          <div style={{ color: 'var(--text3)', fontSize: 11, marginBottom: 12 }}>{user?.email}</div>
+          <div style={{ color: 'var(--text)', fontWeight: 500, fontSize: 15, marginBottom: 4 }}>{user?.display_name}</div>
+          <div style={{ color: 'var(--text3)', fontSize: 13, marginBottom: 14 }}>{user?.email}</div>
           <button
             onClick={handleLogout}
-            style={{ color: 'var(--text3)', fontSize: 12 }}
+            style={{ color: 'var(--text3)', fontSize: 14 }}
             onMouseEnter={e => e.target.style.color = 'var(--danger)'}
             onMouseLeave={e => e.target.style.color = 'var(--text3)'}
           >Sign out</button>

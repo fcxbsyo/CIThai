@@ -19,14 +19,16 @@ function formatDate(iso) {
 
 function SongRow({ song, onClick }) {
   const s = STATUS[song.status] || STATUS.GENERATING
+  const isPlaceholder = String(song.id).startsWith('gen-')
   return (
-    <div onClick={onClick}
-      style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 80px 90px', gap: 16, padding: '14px 16px', borderRadius: 'var(--radius)', cursor: 'pointer', alignItems: 'center', transition: 'background 0.15s' }}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg2)'}
-      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+    <div
+      onClick={isPlaceholder ? undefined : onClick}
+      style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 80px 90px', gap: 16, padding: '14px 16px', borderRadius: 'var(--radius)', cursor: isPlaceholder ? 'default' : 'pointer', alignItems: 'center', transition: 'background 0.15s', opacity: isPlaceholder ? 0.6 : 1 }}
+      onMouseEnter={e => { if (!isPlaceholder) e.currentTarget.style.background = 'var(--bg2)' }}
+      onMouseLeave={e => { if (!isPlaceholder) e.currentTarget.style.background = 'transparent' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 8, background: `hsl(${(song.id * 47) % 360}, 40%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>♪</div>
+        <div style={{ width: 40, height: 40, borderRadius: 8, background: `hsl(${(String(song.id).replace('gen-', '') * 47) % 360}, 40%, 20%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>♪</div>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.title}</div>
           <div style={{ color: 'var(--text3)', fontSize: 12 }}>{formatDate(song.generated_at)}</div>
@@ -48,6 +50,27 @@ function SectionHeader({ title }) {
   )
 }
 
+async function loadSongs() {
+  const [mine, shared, generations] = await Promise.all([
+    api.getSongs(),
+    api.getSharedWithMe(),
+    api.getGenerations(),
+  ])
+  const pendingGenerations = generations
+    .filter(g => g.status === 'GENERATING')
+    .filter(g => !mine.some(s => s.generation === g.id))
+    .map(g => ({
+      id: `gen-${g.id}`,
+      title: 'Generating…',
+      status: 'GENERATING',
+      generated_at: g.submitted_at,
+      duration_seconds: 0,
+      genre_name: '—',
+      occasion_name: '—',
+    }))
+  return { songs: [...pendingGenerations, ...mine], shared }
+}
+
 export default function LibraryPage() {
   const [songs, setSongs] = useState([])
   const [sharedSongs, setSharedSongs] = useState([])
@@ -56,11 +79,22 @@ export default function LibraryPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    Promise.all([api.getSongs(), api.getSharedWithMe()])
-      .then(([mine, shared]) => { setSongs(mine); setSharedSongs(shared) })
+    loadSongs()
+      .then(({ songs, shared }) => { setSongs(songs); setSharedSongs(shared) })
       .catch(() => setError('Failed to load songs'))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    const hasGenerating = songs.some(s => s.status === 'GENERATING')
+    if (!hasGenerating) return
+    const interval = setInterval(() => {
+      loadSongs()
+        .then(({ songs, shared }) => { setSongs(songs); setSharedSongs(shared) })
+        .catch(() => {})
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [songs])
 
   return (
     <div style={{ padding: '40px 48px' }}>
@@ -79,7 +113,6 @@ export default function LibraryPage() {
 
       {!loading && !error && (
         <>
-          {/* My Songs */}
           <div style={{ marginBottom: 48 }}>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text2)' }}>My Songs</div>
             {songs.length === 0 ? (
@@ -97,7 +130,6 @@ export default function LibraryPage() {
             )}
           </div>
 
-          {/* Shared with Me */}
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text2)' }}>Shared with Me</div>
             {sharedSongs.length === 0 ? (

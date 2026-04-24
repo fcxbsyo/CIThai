@@ -23,6 +23,8 @@ async function request(method, path, body = null, auth = true) {
 export const api = {
   register: (data) => request('POST', '/auth/register/', data, false),
   login: (data) => request('POST', '/auth/login/', data, false),
+  generateSong: (data) => request('POST', '/generate/', data),
+getGeneration: (id) => request('GET', `/generations/${id}/`),
   createSong: (data) => request('POST', '/songs/', data),
   getSongs: () => request('GET', '/songs/'),
   getSong: (id) => request('GET', `/songs/${id}/`),
