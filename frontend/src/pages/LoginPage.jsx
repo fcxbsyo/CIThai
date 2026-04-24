@@ -24,9 +24,23 @@ export default function LoginPage() {
         setError(data.detail || 'Login failed')
         return
       }
+
+      // record share access if coming from share link
+      const params = new URLSearchParams(window.location.search)
+      const shareToken = params.get('share')
+      if (shareToken) {
+        await fetch(`/api/share/${shareToken}/access/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.access}`
+          }
+        }).catch(() => {})
+      }
+
       login(data.user, data.access, data.refresh)
       navigate('/library')
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Try again.')
     } finally {
       setLoading(false)
@@ -69,7 +83,7 @@ export default function LoginPage() {
 
         
         <a  href="http://127.0.0.1:8000/accounts/google/login/?process=login"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '13px 24px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', background: 'var(--bg3)', color: 'var(--text)', fontWeight: 500, fontSize: 15, textDecoration: 'none', transition: 'border-color 0.15s' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '13px 24px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', background: 'var(--bg3)', color: 'var(--text)', fontWeight: 500, fontSize: 15, textDecoration: 'none' }}
           onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
           onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
         >

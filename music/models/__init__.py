@@ -2,6 +2,7 @@ from .user import User
 from .song_generation import SongGeneration
 from .song import Song
 from .share_link import ShareLink
+from .shared_song_access import SharedSongAccess
 from .enums import GenerationStatus, Mood, VoiceType
 from .genre import Genre
 from .occasion import Occasion

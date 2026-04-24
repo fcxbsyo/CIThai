@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -26,18 +26,32 @@ class PublicShareView(APIView):
         return Response(serializer.data)
 
 
+class RecordShareAccessView(APIView):
+    """Record when a logged-in user accesses a shared song."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, token):
+        from ..models import SharedSongAccess
+        share_link = get_object_or_404(ShareLink, token=token, is_active=True)
+        SharedSongAccess.objects.get_or_create(
+            user=request.user,
+            share_link=share_link
+        )
+        return Response({'status': 'ok'})
+
+
 class SharedWithMeView(APIView):
-    """FR31: Songs shared with the current user via share links they have accessed."""
+    """FR31: Songs shared with the current user."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Return all active share links that belong to OTHER users
-        share_links = ShareLink.objects.filter(
-            is_active=True
+        from ..models import SharedSongAccess
+        accesses = SharedSongAccess.objects.filter(
+            user=request.user
         ).exclude(
-            song__owner=request.user
-        ).select_related('song', 'song__owner')
+            share_link__song__owner=request.user
+        ).select_related('share_link__song', 'share_link__song__owner')
 
-        songs = [sl.song for sl in share_links]
+        songs = [a.share_link.song for a in accesses]
         serializer = SongSerializer(songs, many=True)
         return Response(serializer.data)
