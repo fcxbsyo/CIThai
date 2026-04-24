@@ -17,6 +17,9 @@ class SongViewSet(viewsets.ModelViewSet):
         # FR5, FR6: only return songs owned by the requesting user
         return Song.objects.filter(owner=self.request.user)
     
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+    
     def perform_destroy(self, instance):
         # FR16, FR17: only owner can delete (ownership already enforced by get_queryset)
         instance.delete()

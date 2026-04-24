@@ -48,6 +48,11 @@ class SongSerializer(serializers.ModelSerializer):
         fields = ['id', 'owner', 'generation', 'title', 'occasion', 'genre',
                   'mood', 'voice_type', 'custom_lyrics', 'duration_seconds',
                   'audio_file_reference', 'generated_at', 'updated_at']
+        read_only_fields = ['owner', 'generated_at', 'updated_at']
+        extra_kwargs = {
+            'audio_file_reference': {'required': False, 'allow_blank': True},
+            'duration_seconds': {'required': False, 'default': 0},
+        }
         
 
 class SongGenerationSerializer(serializers.ModelSerializer):
