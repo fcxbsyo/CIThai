@@ -18,7 +18,19 @@ class SongViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Song.objects.filter(owner=self.request.user)
+        from ..models import SharedSongAccess
+        owned = Song.objects.filter(owner=self.request.user)
+        
+        # if owned=true param, return only owned songs (for library My Songs section)
+        if self.request.query_params.get('owned') == 'true':
+            return owned
+        
+        # otherwise return owned + shared (for detail page access)
+        shared_ids = SharedSongAccess.objects.filter(
+            user=self.request.user
+        ).values_list('share_link__song_id', flat=True)
+        shared = Song.objects.filter(id__in=shared_ids)
+        return (owned | shared).distinct()
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

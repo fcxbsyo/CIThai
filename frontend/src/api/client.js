@@ -26,7 +26,7 @@ export const api = {
   generateSong: (data) => request('POST', '/generate/', data),
 getGeneration: (id) => request('GET', `/generations/${id}/`),
   createSong: (data) => request('POST', '/songs/', data),
-  getSongs: () => request('GET', '/songs/'),
+  getSongs: () => request('GET', '/songs/?owned=true'),
   getSong: (id) => request('GET', `/songs/${id}/`),
   deleteSong: (id) => request('DELETE', `/songs/${id}/`),
   shareSong: (id) => request('POST', `/songs/${id}/share/`),
