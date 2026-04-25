@@ -67,11 +67,21 @@ export default function SongDetailPage() {
 
   async function handleDownload() {
     try {
-      const token = localStorage.getItem('access_token')
-      const res = await fetch(`/api/songs/${id}/download/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      window.open(res.url, '_blank')
+      if (!song?.audio_file_reference) {
+        setToast({ message: 'Audio file not available yet.', type: 'error' })
+        return
+      }
+      const res = await fetch(song.audio_file_reference)
+      if (!res.ok) throw new Error()
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${song.title}.mp3`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
     } catch {
       setToast({ message: 'Failed to download song', type: 'error' })
     }
