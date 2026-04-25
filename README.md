@@ -106,7 +106,7 @@ venv\Scripts\activate
 ### 3. Install dependencies
 
 ```bash
-pip install Django==5.2.8 djangorestframework==3.15.2 djangorestframework-simplejwt==5.5.1 django-allauth==0.61.1 cryptography python-dotenv requests
+pip install -r requirements.txt
 ```
 
 ### 4. Create a `.env` file in the project root
