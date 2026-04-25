@@ -1,4 +1,6 @@
-from .song_views import SongViewSet, SongGenerationViewSet, GenerateSongView
+from .song_viewset import SongViewSet
+from .song_generation_viewset import SongGenerationViewSet
+from .generate_song_view import GenerateSongView
 from .register_views import RegisterView
 from .login_views import LoginView
 from .me_views import MeView
@@ -7,4 +9,5 @@ from .share_link_viewset import ShareLinkViewSet
 from .public_share_views import PublicShareView
 from .record_share_access_views import RecordShareAccessView
 from .shared_with_me_views import SharedWithMeView
-from .genre_occasion_views import GenreViewSet, OccasionViewSet
+from .genre_viewset import GenreViewSet
+from .occasion_viewset import OccasionViewSet
