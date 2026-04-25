@@ -1,9 +1,10 @@
 import uuid
+import requests
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.http import HttpResponseRedirect
+from django.http import StreamingHttpResponse
 
 from ..models import Song, ShareLink
 from ..serializers import SongSerializer
@@ -38,7 +39,18 @@ class SongViewSet(viewsets.ModelViewSet):
                 {'detail': 'Audio file not available yet.'},
                 status=status.HTTP_404_NOT_FOUND
             )
-        return HttpResponseRedirect(song.audio_file_reference)
+        try:
+            r = requests.get(song.audio_file_reference, stream=True, timeout=30)
+            r.raise_for_status()
+            content_type = r.headers.get('Content-Type', 'audio/mpeg')
+            response = StreamingHttpResponse(r.iter_content(chunk_size=8192), content_type=content_type)
+            filename = f"{song.title}.mp3".replace('"', '')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            if 'Content-Length' in r.headers:
+                response['Content-Length'] = r.headers['Content-Length']
+            return response
+        except Exception:
+            return Response({'detail': 'Download failed.'}, status=status.HTTP_502_BAD_GATEWAY)
 
     @action(detail=True, methods=['post'], url_path='share')
     def share(self, request, pk=None):

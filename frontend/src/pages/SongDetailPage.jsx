@@ -67,17 +67,16 @@ export default function SongDetailPage() {
 
   async function handleDownload() {
     try {
-      if (!song?.audio_file_reference) {
-        setToast({ message: 'Audio file not available yet.', type: 'error' })
-        return
-      }
-      const res = await fetch(song.audio_file_reference)
+      const token = localStorage.getItem('access_token')
+      const res = await fetch(`/api/songs/${id}/download/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
       if (!res.ok) throw new Error()
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${song.title}.mp3`
+      a.download = `${song?.title ?? 'song'}.mp3`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
