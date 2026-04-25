@@ -26,43 +26,56 @@ A web-based AI music generation platform that enables users to create personaliz
 
 ```
 CIThai/
-├── cithai/                      # Django project configuration
+├── cithai/                          # Django project configuration
 │   ├── settings.py
 │   ├── urls.py
 │   ├── wsgi.py
 │   └── asgi.py
-├── music/                       # Main Django application
-│   ├── models/                  # One file per domain class
-│   │   ├── user.py              # User model
-│   │   ├── song.py              # Song model
-│   │   ├── song_generation.py   # SongGeneration model
-│   │   ├── share_link.py        # ShareLink model
-│   │   ├── shared_song_access.py # Tracks shared song access per user
-│   │   ├── genre.py             # Genre model
-│   │   ├── occasion.py          # Occasion model
-│   │   └── enums.py             # GenerationStatus, Mood, VoiceType
-│   ├── services/                # Strategy pattern for song generation
+├── music/                           # Main Django application
+│   ├── models/                      # One file per domain class
+│   │   ├── user.py                  # User model
+│   │   ├── song.py                  # Song model
+│   │   ├── song_generation.py       # SongGeneration model
+│   │   ├── share_link.py            # ShareLink model
+│   │   ├── shared_song_access.py    # SharedSongAccess model
+│   │   ├── genre.py                 # Genre model
+│   │   ├── occasion.py              # Occasion model
+│   │   └── enums.py                 # GenerationStatus, Mood, VoiceType
+│   ├── services/                    # Strategy pattern for song generation
 │   │   ├── base_strategy.py         # Abstract strategy interface (ABC)
 │   │   ├── mock_strategy.py         # Offline mock strategy
 │   │   ├── suno_strategy.py         # Suno API strategy
 │   │   ├── strategy_selector.py     # Centralized strategy selection
 │   │   └── song_creation_service.py # Generation pipeline orchestrator
-│   ├── views/
-│   │   ├── song_views.py        # SongViewSet, GenerateSongView
-│   │   ├── share_views.py       # ShareLinkViewSet, PublicShareView
-│   │   ├── auth_views.py        # RegisterView, LoginView
-│   │   └── genre_occasion_views.py
+│   ├── views/                       # One file per view class
+│   │   ├── song_views.py            # SongViewSet, SongGenerationViewSet, GenerateSongView
+│   │   ├── register_view.py         # RegisterView
+│   │   ├── login_view.py            # LoginView
+│   │   ├── me_view.py               # MeView
+│   │   ├── google_oauth_callback_view.py  # GoogleOAuthCallbackView
+│   │   ├── share_link_viewset.py    # ShareLinkViewSet
+│   │   ├── public_share_view.py     # PublicShareView
+│   │   ├── record_share_access_view.py   # RecordShareAccessView
+│   │   ├── shared_with_me_view.py   # SharedWithMeView
+│   │   └── genre_occasion_views.py  # GenreViewSet, OccasionViewSet
 │   ├── migrations/
 │   ├── serializers.py
 │   ├── urls.py
 │   └── admin.py
-├── frontend/                    # React frontend
+├── frontend/                        # React frontend
 │   ├── src/
-│   │   ├── pages/               # LoginPage, RegisterPage, LibraryPage, etc.
-│   │   ├── components/          # Layout, Toast
-│   │   ├── hooks/               # useAuth
-│   │   └── api/                 # client.js (API calls)
+│   │   ├── pages/                   # LoginPage, RegisterPage, LibraryPage, etc.
+│   │   ├── components/              # Layout, Toast
+│   │   ├── hooks/                   # useAuth
+│   │   └── api/                     # client.js (API calls)
 │   └── vite.config.js
+├── docs/                            # Architecture and demo screenshots
+│   ├── architecture.md
+│   ├── class_diagram.md
+│   ├── sequence_diagram.md
+│   ├── mock_generation.png
+│   └── suno_generation.png
+├── .env.example                     # Environment variable template
 ├── manage.py
 └── requirements.txt
 ```
@@ -98,15 +111,15 @@ pip install Django==5.2.8 djangorestframework==3.15.2 djangorestframework-simple
 
 ### 4. Create a `.env` file in the project root
 
-```
-GENERATOR_STRATEGY=mock
-SUNO_API_KEY=your_suno_api_key_here
-SUNO_CALLBACK_URL=https://webhook.site/your-unique-id
-GOOGLE_CLIENT_ID=your_google_client_id_here
-GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+Copy the example file and fill in your values:
+
+```bash
+cp .env.example .env
 ```
 
-> Never commit `.env` to Git. It is already listed in `.gitignore`.
+Then edit `.env` with your actual credentials. See the [Song Generation](#song-generation-strategy-pattern) section below to decide which `GENERATOR_STRATEGY` to use.
+
+> Never commit `.env` to Git. It is already listed in `.gitignore`. Only `.env.example` should be committed.
 
 ### 5. Run migrations
 
@@ -160,6 +173,74 @@ Frontend runs at `http://localhost:5173`
 
 ---
 
+## Song Generation (Strategy Pattern)
+
+The system supports two interchangeable generation strategies controlled by the `GENERATOR_STRATEGY` environment variable in your `.env` file. The strategy can be switched at any time without changing any code.
+
+### When to use `GENERATOR_STRATEGY=mock`
+
+Use mock mode when:
+
+- You are running the app **locally for development or testing**
+- You **do not have a Suno API key**
+- You want to test the full song creation flow **without spending API credits**
+- You are demonstrating the UI or grading the application
+
+Mock mode generates a placeholder audio file instantly with no external API calls. All song creation, library, share, and playback features work exactly the same as in Suno mode.
+
+```
+GENERATOR_STRATEGY=mock
+```
+
+```bash
+python3 manage.py demo_generation --strategy mock
+```
+
+Expected output: `final status : SUCCESS`
+
+**Demo output:**
+
+![Mock generation demo](docs/mock_generation.png)
+
+---
+
+### When to use `GENERATOR_STRATEGY=suno`
+
+Use Suno mode when:
+
+- You want **real AI-generated music**
+- You have a valid **Suno API key** from [https://sunoapi.org](https://sunoapi.org)
+- You have a **callback URL** from [https://webhook.site](https://webhook.site)
+
+Suno mode sends your song parameters to the Suno API which generates a real audio file. Generation takes 1–3 minutes and the service polls for the result automatically.
+
+```
+GENERATOR_STRATEGY=suno
+SUNO_API_KEY=your_suno_api_key_here
+SUNO_CALLBACK_URL=https://webhook.site/your-unique-id
+```
+
+```bash
+python3 manage.py demo_generation --strategy suno --max-polls 30 --poll-interval 5
+```
+
+Expected output: a real `task_id` followed by status polling until `SUCCESS` with an `audio_url` and `duration`.
+
+**Demo output:**
+
+![Suno generation demo](docs/suno_generation.png)
+
+---
+
+### API Key Security
+
+- Never hardcode keys in source code
+- `.env` is in `.gitignore` — keep it that way
+- Keys are read via `os.environ.get()` in `settings.py`
+- Share `.env.example` instead of `.env` when collaborating
+
+---
+
 ## Google OAuth Setup (Step-by-Step)
 
 Google OAuth allows users to sign in with their Google account. Follow these steps to obtain credentials:
@@ -199,13 +280,13 @@ Google OAuth allows users to sign in with their Google account. Follow these ste
    http://localhost:8000
    http://localhost:5173
    ```
-   > ℹ️ `http://localhost:5173` is the default Vite frontend port. If your frontend runs on a different port (e.g. `5174`), add that instead. You can check your port in the terminal where `npm run dev` is running.
+   > `http://localhost:5173` is the default Vite frontend port. If your frontend runs on a different port (e.g. `5174`), add that instead. You can check the port in the terminal where `npm run dev` is running.
 6. Under **Authorized redirect URIs** add both:
    ```
    http://127.0.0.1:8000/accounts/google/login/callback/
    http://localhost:8000/accounts/google/login/callback/
    ```
-   > ℹ️ To verify the exact redirect URI your app is sending, run:
+   > To verify the exact redirect URI your app is sending, run:
    >
    > ```bash
    > curl -v "http://127.0.0.1:8000/accounts/google/login/?process=login" 2>&1 | grep "redirect_uri"
@@ -224,56 +305,6 @@ GOOGLE_CLIENT_SECRET=your_client_secret_here
 
 ---
 
-## Song Generation (Strategy Pattern)
-
-The system supports two interchangeable generation strategies via the `GENERATOR_STRATEGY` environment variable.
-
-### Mock Mode (default — no API key needed)
-
-```
-GENERATOR_STRATEGY=mock
-```
-
-```bash
-python3 manage.py demo_generation --strategy mock
-```
-
-Expected output: `final status : SUCCESS`
-
-**Demo output:**
-
-![Mock generation demo](docs/mock_generation.png)
-
-### Suno Mode (real AI generation)
-
-```
-GENERATOR_STRATEGY=suno
-SUNO_API_KEY=your_key_here
-SUNO_CALLBACK_URL=https://webhook.site/your-unique-id
-```
-
-Get your API key from [https://sunoapi.org](https://sunoapi.org)
-
-Get a free callback URL from [https://webhook.site](https://webhook.site)
-
-```bash
-python3 manage.py demo_generation --strategy suno --max-polls 30 --poll-interval 5
-```
-
-Expected output: a real `task_id` followed by status polling until `SUCCESS` with an `audio_url`.
-
-**Demo output:**
-
-![Suno generation demo](docs/suno_generation.png)
-
-### API Key Security
-
-- Never hardcode keys in source code
-- `.env` is in `.gitignore` — keep it that way
-- Keys are read via `os.environ.get()` in `settings.py`
-
----
-
 ## API Endpoints
 
 | Method      | Endpoint                     | Description                        |
@@ -281,6 +312,7 @@ Expected output: a real `task_id` followed by status polling until `SUCCESS` wit
 | POST        | `/api/auth/register/`        | Register with email and password   |
 | POST        | `/api/auth/login/`           | Login and receive JWT tokens       |
 | POST        | `/api/auth/token/refresh/`   | Refresh access token               |
+| GET         | `/api/auth/me/`              | Get current user info              |
 | GET         | `/api/songs/`                | List user's songs                  |
 | POST        | `/api/generate/`             | Start song generation (background) |
 | GET, DELETE | `/api/songs/{id}/`           | Get or delete a song               |
@@ -301,7 +333,17 @@ Browse the full API at: `http://127.0.0.1:8000/api/`
 
 Manage all data at: `http://127.0.0.1:8000/admin/`
 
-Models registered: User, Song, SongGeneration, ShareLink, Genre, Occasion
+Models registered: User, Song, SongGeneration, ShareLink, SharedSongAccess, Genre, Occasion
+
+---
+
+## Architecture
+
+See [docs/architecture.md](docs/diagram/architecture.md) for the full system architecture diagram.
+
+See [docs/class_diagram.md](docs/diagram/class_diagram.md) for the MVT class diagram.
+
+See [docs/sequence_diagram.md](docs/diagram/sequence_diagram.md) for the song generation sequence diagram.
 
 ---
 
@@ -321,4 +363,5 @@ Core business entities:
 - **Song** — completed AI-generated creative work
 - **SongGeneration** — business record of a generation attempt
 - **ShareLink** — controlled sharing permission attached to a song
+- **SharedSongAccess** — tracks which users have accessed a shared song
 - **Genre / Occasion** — lookup tables for song parameters
